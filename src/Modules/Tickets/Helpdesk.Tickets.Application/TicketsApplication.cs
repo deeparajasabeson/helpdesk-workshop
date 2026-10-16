@@ -11,6 +11,8 @@ public static class TicketsApplication
         // Slices register here as they are added.
         services.AddCommandHandler<CreateTicket, Guid, CreateTicketHandler>();
         services.AddScoped<IValidator<CreateTicket>, CreateTicketValidator>();
+        services.AddCommandHandler<CloseTicket, bool, CloseTicketHandler>();
+        services.AddQueryHandler<GetTicketById, TicketResponse, GetTicketByIdHandler>();
         return services;
     }
 }

@@ -26,6 +26,28 @@ public static class TicketEndpoints
                 : ToFailure(result.Error);
         });
 
+        app.MapPost("/tickets/{id:guid}/close", async (
+            Guid id,
+            ICommandHandler<CloseTicket, bool> handler,
+            CancellationToken ct) =>
+        {
+            var result = await handler.Handle(new CloseTicket(id), ct);
+            return result.IsSuccess ? Results.NoContent() : ToFailure(result.Error);
+        });
+
+        app.MapGet("/tickets/{id:guid}", async (
+            Guid id,
+            IQueryHandler<GetTicketById, 
+            TicketResponse> handler, 
+            CancellationToken ct) =>
+        {
+            var result = await handler.Handle(new GetTicketById(id), ct);
+            if (result.IsSuccess) return Results.Ok(result.Value);
+            return result.Error.Code == "Tickets.NotFound"
+                ? Results.NotFound()
+                : Results.BadRequest(new { result.Error.Code, result.Error.Message });
+        });
+
         return app;
     }
 
