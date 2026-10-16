@@ -37,15 +37,11 @@ public static class TicketEndpoints
 
         app.MapGet("/tickets/{id:guid}", async (
             Guid id,
-            IQueryHandler<GetTicketById, 
-            TicketResponse> handler, 
+            IQueryHandler<GetTicketById, TicketResponse> handler,
             CancellationToken ct) =>
         {
             var result = await handler.Handle(new GetTicketById(id), ct);
-            if (result.IsSuccess) return Results.Ok(result.Value);
-            return result.Error.Code == "Tickets.NotFound"
-                ? Results.NotFound()
-                : Results.BadRequest(new { result.Error.Code, result.Error.Message });
+            return result.IsSuccess ? Results.Ok(result.Value) : ToFailure(result.Error);
         });
 
         return app;
